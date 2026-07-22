@@ -267,6 +267,38 @@ function syncNow(manual){
   });
 }
 
+/* ---------------- Λήψη από το Dropbox ---------------- */
+function pullNow(){
+  if(data.students.length &&
+     !confirm("Θα αντικατασταθεί ό,τι υπάρχει τοπικά με το αρχείο του Dropbox. Συνέχεια;"))
+    return;
+  syncState="busy"; syncMsg="Φέρνω από το Dropbox..."; render();
+  accessToken().then(function(at){
+    if(!at){ syncState="err"; syncMsg="Χρειάζεται σύνδεση με το Dropbox"; render(); return; }
+    fetch("https://content.dropboxapi.com/2/files/download",{
+      method:"POST",
+      headers:{
+        "Authorization":"Bearer "+at,
+        "Dropbox-API-Arg":JSON.stringify({path:FILE_PATH})
+      }
+    }).then(function(r){
+      if(!r.ok) throw new Error(r.status);
+      return r.text();
+    }).then(function(txt){
+      var d=JSON.parse(txt);
+      if(!d || !Array.isArray(d.students)) throw new Error("bad");
+      data=d;
+      localStorage.setItem(LS_DATA, JSON.stringify(data));
+      dirty=false; syncState="ok";
+      syncMsg="Ήρθαν "+d.students.length+" μαθητές";
+      render();
+      setTimeout(function(){ if(syncState==="ok"){syncState="idle";render();} }, 3000);
+    }).catch(function(){
+      syncState="err"; syncMsg="Δεν βρέθηκε αρχείο στο Dropbox"; render();
+    });
+  });
+}
+
 /* ---------------- Ενέργειες ---------------- */
 function openStudent(id){ openId=id; window.scrollTo(0,0); render(); }
 function leaveStudent(){
@@ -385,6 +417,7 @@ function listHTML(){
       +'</button>';
   }
   h+='<div class="tools"><button id="btnImport">Εισαγωγή</button>'
+    +'<button id="btnPull">Λήψη από τον Φαίδωνα</button>'
     +'<button id="btnExport">Εξαγωγή</button></div></main>';
   return h;
 }
@@ -405,6 +438,7 @@ function wireList(){
   if((b=document.getElementById("btnConnect"))) b.onclick=connectDropbox;
   if((b=document.getElementById("btnSync"))) b.onclick=function(){syncNow(true);};
   if((b=document.getElementById("btnImport"))) b.onclick=openImport;
+  if((b=document.getElementById("btnPull"))) b.onclick=pullNow;
   if((b=document.getElementById("btnExport"))) b.onclick=openExport;
   var i=document.getElementById("newName");
   if(i) i.onkeydown=function(e){ if(e.key==="Enter") addStudent(); };
