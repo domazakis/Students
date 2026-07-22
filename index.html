@@ -336,7 +336,7 @@ function addStudent(){
   var name = (inp && inp.value || "").trim();
   if(!name) return;
   var id = "s" + Date.now().toString(36);
-  data.students.push({id:id,name:name,next:"",notes:"",done:[],archived:false});
+  data.students.unshift({id:id,name:name,next:"",notes:"",done:[],archived:false});
   save(); adding=false; openId=id; render();
 }
 
@@ -389,7 +389,7 @@ function listHTML(){
     h+='<div style="text-align:center;color:var(--muted);padding:26px 10px">'
       +'Κανένας ενεργός μαθητής. Πρόσθεσε τον πρώτο, ή κάνε Εισαγωγή από τον Φαίδωνα.</div>';
   }
-  act.slice().reverse().forEach(function(s){
+  act.forEach(function(s){
     var d=s.done.length;
     h+='<button class="card" data-open="'+s.id+'"><div class="top">'
       +'<span class="nm">'+esc(s.name)+'</span><span class="cnt">'+d+'/'+TOTAL+'</span></div>'
