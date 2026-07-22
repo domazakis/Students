@@ -258,6 +258,8 @@ function syncNow(manual){
       body: localStorage.getItem(LS_DATA) || "{}"
     }).then(function(r){
       if(r.ok){ dirty=false; syncState="ok"; syncMsg="Ο Φαίδων τα έχει"; }
+      else if(r.status===401){ localStorage.removeItem(LS_TOK);
+        syncState="err"; syncMsg="Η άδεια έληξε, πάτα Σύνδεση με Dropbox"; }
       else { syncState="err"; syncMsg="Το Dropbox αρνήθηκε ("+r.status+")"; }
       render();
       setTimeout(function(){ if(syncState==="ok"){syncState="idle";render();} }, 3000);
@@ -282,7 +284,8 @@ function pullNow(){
         "Dropbox-API-Arg":JSON.stringify({path:FILE_PATH})
       }
     }).then(function(r){
-      if(!r.ok) throw new Error(r.status);
+      if(r.status===401){ localStorage.removeItem(LS_TOK); throw new Error("auth"); }
+      if(!r.ok) throw new Error("http "+r.status);
       return r.text();
     }).then(function(txt){
       var d=JSON.parse(txt);
@@ -293,8 +296,12 @@ function pullNow(){
       syncMsg="Ήρθαν "+d.students.length+" μαθητές";
       render();
       setTimeout(function(){ if(syncState==="ok"){syncState="idle";render();} }, 3000);
-    }).catch(function(){
-      syncState="err"; syncMsg="Δεν βρέθηκε αρχείο στο Dropbox"; render();
+    }).catch(function(e){
+      syncState="err";
+      syncMsg=(e && e.message==="auth")
+        ? "Η άδεια έληξε, πάτα Σύνδεση με Dropbox"
+        : "Απέτυχε ("+((e&&e.message)||"δίκτυο")+")";
+      render();
     });
   });
 }
@@ -418,7 +425,9 @@ function listHTML(){
   }
   h+='<div class="tools"><button id="btnImport">Εισαγωγή</button>'
     +'<button id="btnPull">Λήψη από τον Φαίδωνα</button>'
-    +'<button id="btnExport">Εξαγωγή</button></div></main>';
+    +'<button id="btnExport">Εξαγωγή</button>'
+    +(connected?'<button id="btnLogout">Αποσύνδεση</button>':'')
+    +'</div></main>';
   return h;
 }
 
@@ -440,6 +449,9 @@ function wireList(){
   if((b=document.getElementById("btnImport"))) b.onclick=openImport;
   if((b=document.getElementById("btnPull"))) b.onclick=pullNow;
   if((b=document.getElementById("btnExport"))) b.onclick=openExport;
+  if((b=document.getElementById("btnLogout"))) b.onclick=function(){
+    localStorage.removeItem(LS_TOK); syncState="idle"; syncMsg=""; render();
+  };
   var i=document.getElementById("newName");
   if(i) i.onkeydown=function(e){ if(e.key==="Enter") addStudent(); };
 }
