@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#E8DFC9"/>
+  <!-- Το L (κόκκινο): κάθετη ράβδος + κάτω οριζόντια -->
+  <rect x="138" y="92" width="74" height="330" rx="14" fill="#B23A2E"/>
+  <rect x="138" y="348" width="252" height="74" rx="14" fill="#B23A2E"/>
+  <!-- Η μεσαία πορτοκαλί γραμμή -->
+  <rect x="212" y="228" width="138" height="50" rx="12" fill="#E08A2E"/>
+</svg>

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#173A5E">
+<title>Μαθητές</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=PT+Sans:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#E8DFC9; --paperDeep:#DBCFB2; --navy:#173A5E; --navySoft:#3B6285;
+  --red:#B23A2E; --green:#3F6B4A; --ink:#14212C; --muted:#6E7A83; --white:#FBF7EC;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:'PT Sans',system-ui,sans-serif;font-size:15px;
+  padding-bottom:env(safe-area-inset-bottom)}
+button{font-family:inherit;cursor:pointer}
+textarea,input{font-family:inherit;color:var(--ink)}
+header{background:var(--navy);color:var(--white);padding:12px 16px 14px}
+.eyebrow-top{font-size:10px;letter-spacing:2.2px;opacity:.65}
+h1{font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:700;
+  margin:2px 0 0;line-height:1.1}
+.back{background:none;border:none;color:var(--white);opacity:.75;font-size:14px;padding:2px 0}
+.name-row{display:flex;align-items:center;gap:10px;margin-top:2px}
+.name-row h1{flex:1;font-size:21px;margin:0}
+.pass-btn{background:var(--green);border:none;border-radius:8px;color:#fff;
+  font-size:12px;font-weight:700;padding:6px 11px;white-space:nowrap}
+.bar{height:7px;background:var(--paperDeep);border-radius:999px;margin-top:9px}
+.bar>div{height:100%;border-radius:999px;background:var(--navy);transition:width .3s}
+.bar>div.full{background:var(--green)}
+header .bar{background:rgba(251,247,236,.25)}
+.substat{margin-top:5px;font-size:12px;opacity:.85}
+main{padding:12px 12px 0}
+.card{display:block;width:100%;text-align:left;background:var(--white);
+  border:1px solid var(--paperDeep);border-radius:11px;padding:11px 13px;
+  margin-bottom:7px;font-size:15px}
+.card .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.card .nm{font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;font-weight:700}
+.card .cnt{font-size:12px;color:var(--muted)}
+.card .next{margin-top:5px;font-size:13px;color:var(--red);line-height:1.35}
+.card .left{margin-top:5px;font-size:12px;color:var(--muted)}
+.card .left.done{color:var(--green);font-weight:700}
+.ghost{width:100%;padding:13px;background:none;border:1px dashed var(--navySoft);
+  border-radius:11px;color:var(--navy);font-size:15px;margin-bottom:8px}
+.quiet{width:100%;padding:11px;background:none;border:1px solid var(--paperDeep);
+  border-radius:11px;color:var(--muted);font-size:14px;margin-bottom:8px}
+.quiet.err{border-color:var(--red);color:var(--red);background:#F6E3E0}
+.quiet.ok{color:var(--green)}
+.eyebrow{font-size:10px;letter-spacing:1.8px;text-transform:uppercase;
+  color:var(--navySoft);margin:0 0 5px;padding-left:2px}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.pane{width:100%;background:var(--white);border:1px solid var(--paperDeep);
+  border-radius:10px;padding:10px 11px;font-size:14px;line-height:1.45;
+  resize:vertical;display:block}
+.pane.next{border-left:3px solid var(--red);font-weight:700}
+.pane.notes{border-left:3px solid var(--navySoft)}
+.grp{margin-bottom:13px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.chk{display:flex;align-items:center;gap:9px;min-height:46px;text-align:left;
+  background:var(--white);border:1px solid var(--paperDeep);border-radius:9px;
+  padding:8px 10px;font-size:14px;line-height:1.25;color:var(--ink)}
+.chk .bx{flex:0 0 19px;height:19px;border-radius:5px;border:2px solid var(--navySoft);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.chk.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.chk.on .bx{background:#fff;border-color:#fff;color:var(--navy)}
+.foot{position:sticky;bottom:0;padding:8px 12px 10px;
+  background:linear-gradient(to top,var(--paper) 70%,transparent)}
+.cta{width:100%;padding:10px;border:none;border-radius:11px;background:var(--navy);
+  color:#fff;font-size:15px;font-weight:700}
+.syncline{text-align:center;font-size:12px;color:var(--muted);margin-top:5px}
+.syncline.err{color:var(--red)}
+.addbox{background:var(--white);border:1px solid var(--paperDeep);border-radius:11px;
+  padding:12px;margin-bottom:8px}
+.addbox input{width:100%;padding:12px 13px;border:1px solid var(--paperDeep);
+  border-radius:9px;font-size:15px;background:var(--paper)}
+.addrow{display:flex;gap:8px;margin-top:9px}
+.addrow .go{flex:1;padding:13px;border:none;border-radius:9px;background:var(--navy);
+  color:#fff;font-size:15px;font-weight:700}
+.addrow .no{padding:13px 16px;border:1px solid var(--paperDeep);border-radius:9px;
+  background:none;color:var(--muted);font-size:15px}
+.arcitem{display:flex;align-items:center;gap:8px;border:1px dashed var(--paperDeep);
+  border-radius:10px;padding:9px 11px;margin-top:7px}
+.arcitem .an{flex:1;font-family:'Cormorant Garamond',Georgia,serif;font-size:16px;color:var(--muted)}
+.arcitem .restore{background:none;border:1px solid var(--navySoft);border-radius:8px;
+  color:var(--navy);font-size:13px;padding:6px 11px}
+.tools{display:flex;gap:8px;margin:2px 0 26px}
+.tools button{flex:1;padding:9px;background:none;border:1px solid var(--paperDeep);
+  border-radius:9px;color:var(--muted);font-size:12px}
+dialog{border:none;border-radius:12px;padding:14px;width:min(92vw,480px);background:var(--white)}
+dialog::backdrop{background:rgba(20,33,44,.55)}
+dialog textarea{width:100%;min-height:180px;border:1px solid var(--paperDeep);
+  border-radius:9px;padding:10px;font-size:12px}
+dialog .addrow .go{background:var(--navy)}
+.spin{width:24px;height:24px;margin:60px auto 12px;border:3px solid var(--paperDeep);
+  border-top-color:var(--navy);border-radius:50%;animation:sp .9s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="app"><div class="spin"></div></div>
+
+<dialog id="dlg">
+  <div class="eyebrow" id="dlgTitle">Εισαγωγή δεδομένων</div>
+  <textarea id="dlgText" placeholder="Επικόλλησε εδώ το JSON"></textarea>
+  <div class="addrow">
+    <button class="go" id="dlgGo">ΟΚ</button>
+    <button class="no" onclick="document.getElementById('dlg').close()">Άκυρο</button>
+  </div>
+</dialog>
+
+<script>
+"use strict";
+
+/* ---------------- Ρυθμίσεις ---------------- */
+var APP_KEY = "u2g80fb2ayn4zri";
+var REDIRECT = location.origin + location.pathname;
+var LS_DATA = "mathites:data";
+var LS_TOK = "mathites:tok";
+var FILE_PATH = "/mathites.json";
+
+/* ---------------- Ύλη ---------------- */
+var CURRICULUM = [
+ ["d1","Διαδρομές","Συγγρού"],["d2","Διαδρομές","Θησέως"],
+ ["d3","Διαδρομές","Δημοσθένους"],["d4","Διαδρομές","Δοϊράνης"],
+ ["d5","Διαδρομές","Πειραιώς"],["d6","Διαδρομές","Έξτρα"],
+ ["d7","Διαδρομές","Νέα Σμύρνη"],["d8","Διαδρομές","Κέντρο"],
+ ["d9","Διαδρομές","Εθνική"],["d10","Διαδρομές","Παραλιακή"],
+ ["b1","Βασικά","Προτεραιότητες"],["b2","Βασικά","Γραμμή διακοπής"],
+ ["b3","Βασικά","Κατέβασμα σε δευτέρα"],
+ ["o1","Οπισθογωνία","Όπισθεν"],["o2","Οπισθογωνία","Γύφτοι"],
+ ["o3","Οπισθογωνία","Πριν"],["o4","Οπισθογωνία","Μετά"],
+ ["o5","Οπισθογωνία","Ανάποδη"],["o6","Οπισθογωνία","Αριστερή"],
+ ["p1","Παρκάρισμα","Πρώτο"],["p2","Παρκάρισμα","Δεξί"],
+ ["p3","Παρκάρισμα","Αριστερό"],["p4","Παρκάρισμα","Διόρθωση πιο μέσα"],
+ ["p5","Παρκάρισμα","Διόρθωση πιο έξω"],
+ ["a1","Ανηφόρα","Συμπλέκτης"],["a2","Ανηφόρα","Χειρόφρενο"],
+ ["e1","Εξετάσεις","Θεωρία (έλεγχοι)"],["e2","Εξετάσεις","Θεωρία (ερωτήσεις)"],
+ ["e3","Εξετάσεις","Δικαίωμα λαθών"],["e4","Εξετάσεις","Πρόβα εξέτασης"],
+ ["e5","Εξετάσεις","Κόστος επανεξέτασης"]
+];
+var TOTAL = CURRICULUM.length;
+var GROUPS = ["Διαδρομές","Βασικά","Οπισθογωνία","Παρκάρισμα","Ανηφόρα","Εξετάσεις"];
+
+/* ---------------- Δεδομένα ---------------- */
+var data = load();
+var openId = null;
+var adding = false;
+var showArc = false;
+var dirty = false;
+var syncState = "idle"; /* idle busy ok err */
+var syncMsg = "";
+
+function load(){
+  try{
+    var raw = localStorage.getItem(LS_DATA);
+    if(raw){ var d = JSON.parse(raw);
+      if(d && Array.isArray(d.students)) return d; }
+  }catch(e){}
+  return { version:3, updatedAt:null, students:[] };
+}
+function save(){
+  data.updatedAt = new Date().toISOString();
+  localStorage.setItem(LS_DATA, JSON.stringify(data));
+  dirty = true;
+}
+function esc(s){
+  return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function student(id){
+  for(var i=0;i<data.students.length;i++)
+    if(data.students[i].id===id) return data.students[i];
+  return null;
+}
+
+/* ---------------- Dropbox OAuth (PKCE) ---------------- */
+function b64url(buf){
+  var s = btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
+  return s.replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function randVerifier(){
+  var a = new Uint8Array(48); crypto.getRandomValues(a);
+  return b64url(a.buffer).slice(0,96);
+}
+function connectDropbox(){
+  var v = randVerifier();
+  sessionStorage.setItem("pkce", v);
+  crypto.subtle.digest("SHA-256", new TextEncoder().encode(v)).then(function(h){
+    location.href = "https://www.dropbox.com/oauth2/authorize"
+      + "?client_id=" + APP_KEY
+      + "&response_type=code&token_access_type=offline"
+      + "&code_challenge_method=S256&code_challenge=" + b64url(h)
+      + "&redirect_uri=" + encodeURIComponent(REDIRECT);
+  });
+}
+function tokenReq(body){
+  return fetch("https://api.dropboxapi.com/oauth2/token",{
+    method:"POST",
+    headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:new URLSearchParams(body)
+  }).then(function(r){return r.json();});
+}
+function getTok(){
+  try{return JSON.parse(localStorage.getItem(LS_TOK));}catch(e){return null;}
+}
+function saveTok(t){
+  var old = getTok() || {};
+  localStorage.setItem(LS_TOK, JSON.stringify({
+    access: t.access_token,
+    refresh: t.refresh_token || old.refresh,
+    exp: Date.now() + ((t.expires_in||14400)-120)*1000
+  }));
+}
+function handleRedirect(){
+  var p = new URLSearchParams(location.search);
+  var code = p.get("code");
+  if(!code) return Promise.resolve();
+  var v = sessionStorage.getItem("pkce") || "";
+  return tokenReq({
+    code:code, grant_type:"authorization_code", code_verifier:v,
+    client_id:APP_KEY, redirect_uri:REDIRECT
+  }).then(function(t){
+    if(t.access_token){ saveTok(t); syncState="ok"; syncMsg="Συνδέθηκε με το Dropbox"; }
+    history.replaceState({}, "", REDIRECT);
+  });
+}
+function accessToken(){
+  var t = getTok();
+  if(!t) return Promise.resolve(null);
+  if(Date.now() < t.exp) return Promise.resolve(t.access);
+  if(!t.refresh) return Promise.resolve(null);
+  return tokenReq({
+    grant_type:"refresh_token", refresh_token:t.refresh, client_id:APP_KEY
+  }).then(function(j){
+    if(j.access_token){ saveTok(j); return j.access_token; }
+    return null;
+  });
+}
+function syncNow(manual){
+  if(syncState==="busy") return;
+  syncState="busy"; syncMsg="Στέλνω στον Φαίδωνα..."; paintSyncOnly();
+  accessToken().then(function(at){
+    if(!at){
+      syncState="err";
+      syncMsg = manual ? "Χρειάζεται σύνδεση με το Dropbox" : "Χωρίς σύνδεση Dropbox";
+      render(); return;
+    }
+    fetch("https://content.dropboxapi.com/2/files/upload",{
+      method:"POST",
+      headers:{
+        "Authorization":"Bearer "+at,
+        "Dropbox-API-Arg":JSON.stringify({path:FILE_PATH,mode:"overwrite",mute:true}),
+        "Content-Type":"application/octet-stream"
+      },
+      body: localStorage.getItem(LS_DATA) || "{}"
+    }).then(function(r){
+      if(r.ok){ dirty=false; syncState="ok"; syncMsg="Ο Φαίδων τα έχει"; }
+      else { syncState="err"; syncMsg="Το Dropbox αρνήθηκε ("+r.status+")"; }
+      render();
+      setTimeout(function(){ if(syncState==="ok"){syncState="idle";render();} }, 3000);
+    }).catch(function(){
+      syncState="err"; syncMsg="Χωρίς δίκτυο, θα ξαναδοκιμάσει"; render();
+    });
+  });
+}
+
+/* ---------------- Ενέργειες ---------------- */
+function openStudent(id){ openId=id; window.scrollTo(0,0); render(); }
+function leaveStudent(){
+  openId=null; render();
+  if(dirty) syncNow(false);
+}
+function toggleItem(id){
+  var s = student(openId); if(!s) return;
+  var i = s.done.indexOf(id);
+  if(i>=0) s.done.splice(i,1); else s.done.push(id);
+  save(); render();
+}
+function setField(field, el){
+  var s = student(openId); if(!s) return;
+  s[field] = el.value; save();
+}
+function passStudent(){
+  var s = student(openId); if(!s) return;
+  s.archived = true; save();
+  openId=null; render(); syncNow(false);
+}
+function restoreStudent(id){
+  var s = student(id); if(!s) return;
+  s.archived = false; save(); render();
+}
+function addStudent(){
+  var inp = document.getElementById("newName");
+  var name = (inp && inp.value || "").trim();
+  if(!name) return;
+  var id = "s" + Date.now().toString(36);
+  data.students.push({id:id,name:name,next:"",notes:"",done:[],archived:false});
+  save(); adding=false; openId=id; render();
+}
+
+/* ---------------- Εισαγωγή / Εξαγωγή ---------------- */
+function openImport(){
+  document.getElementById("dlgTitle").textContent="Εισαγωγή δεδομένων";
+  var ta=document.getElementById("dlgText"); ta.value="";
+  document.getElementById("dlgGo").onclick=function(){
+    try{
+      var d=JSON.parse(ta.value);
+      if(!d || !Array.isArray(d.students)) throw new Error();
+      data=d; save(); document.getElementById("dlg").close(); render();
+    }catch(e){ ta.value="Μη έγκυρο JSON, δοκίμασε ξανά"; }
+  };
+  document.getElementById("dlg").showModal();
+}
+function openExport(){
+  document.getElementById("dlgTitle").textContent="Εξαγωγή (αντίγραψε το κείμενο)";
+  var ta=document.getElementById("dlgText");
+  ta.value=JSON.stringify(data,null,1);
+  document.getElementById("dlgGo").onclick=function(){
+    ta.select(); document.execCommand("copy");
+    document.getElementById("dlg").close();
+  };
+  document.getElementById("dlg").showModal();
+  ta.select();
+}
+
+/* ---------------- Απόδοση ---------------- */
+function barHTML(done){
+  var pct = TOTAL ? Math.round(done/TOTAL*100) : 0;
+  return '<div class="bar"><div class="'+(pct===100?"full":"")+'" style="width:'+pct+'%"></div></div>';
+}
+function paintSyncOnly(){
+  var el=document.getElementById("syncline");
+  if(el){ el.textContent=syncMsg; el.style.display="block"; }
+  else render();
+}
+function render(){
+  var app=document.getElementById("app");
+  if(openId){ app.innerHTML=studentHTML(); wireStudent(); }
+  else { app.innerHTML=listHTML(); wireList(); }
+}
+
+function listHTML(){
+  var act=[], arc=[];
+  data.students.forEach(function(s){ (s.archived?arc:act).push(s); });
+  var h='<header><div class="eyebrow-top">ΣΧΟΛΗ ΟΔΗΓΩΝ ΔΟΜΑΖΑΚΗΣ</div><h1>Μαθητές</h1></header><main>';
+  if(act.length===0){
+    h+='<div style="text-align:center;color:var(--muted);padding:26px 10px">'
+      +'Κανένας ενεργός μαθητής. Πρόσθεσε τον πρώτο, ή κάνε Εισαγωγή από τον Φαίδωνα.</div>';
+  }
+  act.forEach(function(s){
+    var d=s.done.length;
+    h+='<button class="card" data-open="'+s.id+'"><div class="top">'
+      +'<span class="nm">'+esc(s.name)+'</span><span class="cnt">'+d+'/'+TOTAL+'</span></div>'
+      +(s.next?'<div class="next">→ '+esc(s.next)+'</div>':'')
+      +barHTML(d)
+      +'<div class="left'+(d===TOTAL?' done':'')+'">'
+      +(d===TOTAL?'Η ύλη ολοκληρώθηκε':'Μένουν '+(TOTAL-d))+'</div></button>';
+  });
+  if(adding){
+    h+='<div class="addbox"><input id="newName" placeholder="Ονοματεπώνυμο μαθητή">'
+      +'<div class="addrow"><button class="go" id="goAdd">Προσθήκη</button>'
+      +'<button class="no" id="noAdd">Άκυρο</button></div></div>';
+  } else {
+    h+='<button class="ghost" id="btnAdd">Νέος μαθητής</button>';
+  }
+  if(arc.length){
+    h+='<button class="quiet" id="btnArc">'
+      +(showArc?'Κλείσε το αρχείο':'Αρχείο ('+arc.length+')')+'</button>';
+    if(showArc) arc.forEach(function(s){
+      h+='<div class="arcitem"><span class="an">'+esc(s.name)+'</span>'
+        +'<button class="restore" data-restore="'+s.id+'">Επαναφορά</button></div>';
+    });
+  }
+  var connected = !!getTok();
+  if(!connected){
+    h+='<button class="quiet err" id="btnConnect">Σύνδεση με Dropbox (μία φορά)</button>';
+  } else {
+    h+='<button class="quiet'+(syncState==="err"?" err":(syncState==="ok"?" ok":""))
+      +'" id="btnSync">'
+      +(syncState==="busy"||syncState==="ok"?esc(syncMsg)
+        :(syncState==="err"?esc(syncMsg)+" · πάτα για ξανά":"Συγχρονισμός με τον Φαίδωνα"))
+      +'</button>';
+  }
+  h+='<div class="tools"><button id="btnImport">Εισαγωγή</button>'
+    +'<button id="btnExport">Εξαγωγή</button></div></main>';
+  return h;
+}
+
+function wireList(){
+  document.querySelectorAll("[data-open]").forEach(function(el){
+    el.onclick=function(){ openStudent(el.getAttribute("data-open")); };
+  });
+  document.querySelectorAll("[data-restore]").forEach(function(el){
+    el.onclick=function(){ restoreStudent(el.getAttribute("data-restore")); };
+  });
+  var b;
+  if((b=document.getElementById("btnAdd"))) b.onclick=function(){adding=true;render();
+    var i=document.getElementById("newName"); if(i)i.focus();};
+  if((b=document.getElementById("goAdd"))) b.onclick=addStudent;
+  if((b=document.getElementById("noAdd"))) b.onclick=function(){adding=false;render();};
+  if((b=document.getElementById("btnArc"))) b.onclick=function(){showArc=!showArc;render();};
+  if((b=document.getElementById("btnConnect"))) b.onclick=connectDropbox;
+  if((b=document.getElementById("btnSync"))) b.onclick=function(){syncNow(true);};
+  if((b=document.getElementById("btnImport"))) b.onclick=openImport;
+  if((b=document.getElementById("btnExport"))) b.onclick=openExport;
+  var i=document.getElementById("newName");
+  if(i) i.onkeydown=function(e){ if(e.key==="Enter") addStudent(); };
+}
+
+function studentHTML(){
+  var s=student(openId); if(!s){openId=null;return listHTML();}
+  var d=s.done.length;
+  var h='<header><button class="back" id="btnBack">← Μαθητές</button>'
+    +'<div class="name-row"><h1>'+esc(s.name)+'</h1>'
+    +'<button class="pass-btn" id="btnPass">Πέρασε ✓</button></div>'
+    +barHTML(d)
+    +'<div class="substat">'+d+' από '+TOTAL+', μένουν '+(TOTAL-d)+'</div></header><main>'
+    +'<div class="duo"><div><div class="eyebrow">Επόμενο μάθημα</div>'
+    +'<textarea class="pane next" id="fNext" rows="3" placeholder="Τι με περιμένει">'
+    +esc(s.next)+'</textarea></div>'
+    +'<div><div class="eyebrow">Σημειώσεις</div>'
+    +'<textarea class="pane notes" id="fNotes" rows="3" placeholder="Ιστορικό, λεπτομέρειες">'
+    +esc(s.notes)+'</textarea></div></div>';
+  GROUPS.forEach(function(g){
+    h+='<div class="grp"><div class="eyebrow">'+g+'</div><div class="grid2">';
+    CURRICULUM.forEach(function(it){
+      if(it[1]!==g) return;
+      var on = s.done.indexOf(it[0])>=0;
+      h+='<button class="chk'+(on?" on":"")+'" data-t="'+it[0]+'">'
+        +'<span class="bx">'+(on?"✓":"")+'</span><span>'+it[2]+'</span></button>';
+    });
+    h+='</div></div>';
+  });
+  h+='</main><div class="foot"><button class="cta" id="btnEnd">Τέλος μαθήματος</button>'
+    +'<div class="syncline'+(syncState==="err"?" err":"")+'" id="syncline" style="display:'
+    +(syncState==="idle"?"none":"block")+'">'+esc(syncMsg)+'</div></div>';
+  return h;
+}
+
+function wireStudent(){
+  document.getElementById("btnBack").onclick=leaveStudent;
+  document.getElementById("btnEnd").onclick=leaveStudent;
+  document.getElementById("btnPass").onclick=passStudent;
+  document.getElementById("fNext").oninput=function(){setField("next",this);};
+  document.getElementById("fNotes").oninput=function(){setField("notes",this);};
+  document.querySelectorAll("[data-t]").forEach(function(el){
+    el.onclick=function(){ toggleItem(el.getAttribute("data-t")); };
+  });
+}
+
+/* ---------------- Εκκίνηση ---------------- */
+handleRedirect().then(function(){ render(); });
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js").catch(function(){});
+}
+</script>
+</body>
+</html>
