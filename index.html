@@ -28,6 +28,7 @@ h1{font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:700
 .name-row h1{flex:1;font-size:21px;margin:0}
 .pass-btn{background:var(--green);border:none;border-radius:8px;color:#fff;
   font-size:12px;font-weight:700;padding:6px 11px;white-space:nowrap}
+.lesson-hd{margin-top:4px;font-size:12px;opacity:.85;font-weight:700}
 .bar{height:7px;background:var(--paperDeep);border-radius:999px;margin-top:9px}
 .bar>div{height:100%;border-radius:999px;background:var(--navy);transition:width .3s}
 .bar>div.full{background:var(--green)}
@@ -39,7 +40,8 @@ main{padding:12px 12px 0}
   margin-bottom:7px;font-size:15px}
 .card .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .card .nm{font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;font-weight:700}
-.card .cnt{font-size:12px;color:var(--muted)}
+.card .cnt{font-size:12px;color:var(--muted);white-space:nowrap}
+.card .lesson{font-size:12px;color:var(--navy);font-weight:700;margin-top:3px}
 .card .next{margin-top:5px;font-size:13px;color:var(--red);line-height:1.35}
 .card .left{margin-top:5px;font-size:12px;color:var(--muted)}
 .card .left.done{color:var(--green);font-weight:700}
@@ -324,6 +326,7 @@ function setField(field, el){
 }
 function passStudent(){
   var s = student(openId); if(!s) return;
+  if(!confirm("Να αρχειοθετηθεί ο μαθητής " + s.name + ";\nΘα φύγει από τη λίστα ενεργών.")) return;
   s.archived = true; save();
   openId=null; render(); syncNow(false);
 }
@@ -336,7 +339,7 @@ function addStudent(){
   var name = (inp && inp.value || "").trim();
   if(!name) return;
   var id = "s" + Date.now().toString(36);
-  data.students.unshift({id:id,name:name,next:"",notes:"",done:[],archived:false});
+  data.students.unshift({id:id,name:name,next:"",notes:"",done:[],archived:false,lessonInfo:""});
   save(); adding=false; openId=id; render();
 }
 
@@ -393,6 +396,7 @@ function listHTML(){
     var d=s.done.length;
     h+='<button class="card" data-open="'+s.id+'"><div class="top">'
       +'<span class="nm">'+esc(s.name)+'</span><span class="cnt">'+d+'/'+TOTAL+'</span></div>'
+      +(s.lessonInfo?'<div class="lesson">'+esc(s.lessonInfo)+'</div>':'')
       +(s.next?'<div class="next">→ '+esc(s.next)+'</div>':'')
       +barHTML(d)
       +'<div class="left'+(d===TOTAL?' done':'')+'">'
@@ -462,6 +466,7 @@ function studentHTML(){
   var h='<header><button class="back" id="btnBack">← Μαθητές</button>'
     +'<div class="name-row"><h1>'+esc(s.name)+'</h1>'
     +'<button class="pass-btn" id="btnPass">Πέρασε ✓</button></div>'
+    +(s.lessonInfo?'<div class="lesson-hd">'+esc(s.lessonInfo)+'</div>':'')
     +barHTML(d)
     +'<div class="substat">'+d+' από '+TOTAL+', μένουν '+(TOTAL-d)+'</div></header><main>'
     +'<div class="duo"><div><div class="eyebrow">Επόμενο μάθημα</div>'
