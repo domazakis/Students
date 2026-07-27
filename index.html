@@ -68,10 +68,6 @@ main{padding:12px 12px 0}
   display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
 .chk.on{background:var(--navy);border-color:var(--navy);color:#fff}
 .chk.on .bx{background:#fff;border-color:#fff;color:var(--navy)}
-.foot{position:sticky;bottom:0;padding:8px 12px 10px;
-  background:linear-gradient(to top,var(--paper) 70%,transparent)}
-.cta{width:100%;padding:10px;border:none;border-radius:11px;background:var(--navy);
-  color:#fff;font-size:15px;font-weight:700}
 .syncline{text-align:center;font-size:12px;color:var(--muted);margin-top:5px}
 .syncline.err{color:var(--red)}
 .addbox{background:var(--white);border:1px solid var(--paperDeep);border-radius:11px;
@@ -99,10 +95,17 @@ dialog .addrow .go{background:var(--navy)}
 .spin{width:24px;height:24px;margin:60px auto 12px;border:3px solid var(--paperDeep);
   border-top-color:var(--navy);border-radius:50%;animation:sp .9s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
+#toast{position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));
+  transform:translateX(-50%) translateY(12px);background:var(--navy);color:var(--white);
+  font-size:14px;padding:11px 18px;border-radius:999px;white-space:nowrap;
+  box-shadow:0 4px 14px rgba(20,33,44,.28);opacity:0;pointer-events:none;
+  transition:opacity .18s ease,transform .18s ease;z-index:99}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
 <div id="app"><div class="spin"></div></div>
+<div id="toast"></div>
 
 <dialog id="dlg">
   <div class="eyebrow" id="dlgTitle">Εισαγωγή δεδομένων</div>
@@ -308,11 +311,43 @@ function pullNow(){
   });
 }
 
+/* ---------------- Πλοήγηση με το κουμπί Back ---------------- */
+var exitArmed = false;
+var exitTimer = null;
+var skipPop = false;
+
+function pushEntry(){
+  try{ history.pushState({faidon:1}, "", location.href); }catch(e){}
+}
+function toast(msg){
+  var t=document.getElementById("toast");
+  if(!t) return;
+  t.textContent=msg; t.classList.add("on");
+  clearTimeout(toast._t);
+  toast._t=setTimeout(function(){ t.classList.remove("on"); }, 2200);
+}
+
+window.addEventListener("popstate", function(){
+  if(skipPop){ skipPop=false; return; }
+  if(openId){ leaveStudent(); return; }
+  if(exitArmed){ history.back(); return; }
+  exitArmed=true;
+  toast("Πάτα ξανά για έξοδο");
+  pushEntry();
+  clearTimeout(exitTimer);
+  exitTimer=setTimeout(function(){ exitArmed=false; }, 2500);
+});
+
 /* ---------------- Ενέργειες ---------------- */
-function openStudent(id){ openId=id; window.scrollTo(0,0); render(); }
+function openStudent(id){ openId=id; pushEntry(); window.scrollTo(0,0); render(); }
 function leaveStudent(){
   openId=null; render();
   if(dirty) syncNow(false);
+}
+function backToList(){
+  skipPop=true;
+  try{ history.back(); }catch(e){ skipPop=false; }
+  leaveStudent();
 }
 function toggleItem(id){
   var s = student(openId); if(!s) return;
@@ -328,6 +363,8 @@ function passStudent(){
   var s = student(openId); if(!s) return;
   if(!confirm("Να αρχειοθετηθεί ο μαθητής " + s.name + ";\nΘα φύγει από τη λίστα ενεργών.")) return;
   s.archived = true; save();
+  skipPop=true;
+  try{ history.back(); }catch(e){ skipPop=false; }
   openId=null; render(); syncNow(false);
 }
 function restoreStudent(id){
@@ -340,7 +377,7 @@ function addStudent(){
   if(!name) return;
   var id = "s" + Date.now().toString(36);
   data.students.unshift({id:id,name:name,next:"",notes:"",done:[],archived:false,lessonInfo:""});
-  save(); adding=false; openId=id; render();
+  save(); adding=false; openId=id; pushEntry(); render();
 }
 
 /* ---------------- Εισαγωγή / Εξαγωγή ---------------- */
@@ -485,15 +522,13 @@ function studentHTML(){
     });
     h+='</div></div>';
   });
-  h+='</main><div class="foot"><button class="cta" id="btnEnd">Αποθήκευση</button>'
-    +'<div class="syncline'+(syncState==="err"?" err":"")+'" id="syncline" style="display:'
-    +(syncState==="idle"?"none":"block")+'">'+esc(syncMsg)+'</div></div>';
+  h+='<div class="syncline'+(syncState==="err"?" err":"")+'" id="syncline" style="display:'
+    +(syncState==="idle"?"none":"block")+';margin:20px 0 30px">'+esc(syncMsg)+'</div></main>';
   return h;
 }
 
 function wireStudent(){
-  document.getElementById("btnBack").onclick=leaveStudent;
-  document.getElementById("btnEnd").onclick=leaveStudent;
+  document.getElementById("btnBack").onclick=backToList;
   document.getElementById("btnPass").onclick=passStudent;
   document.getElementById("fNext").oninput=function(){setField("next",this);};
   document.getElementById("fNotes").oninput=function(){setField("notes",this);};
@@ -503,7 +538,7 @@ function wireStudent(){
 }
 
 /* ---------------- Εκκίνηση ---------------- */
-handleRedirect().then(function(){ render(); });
+handleRedirect().then(function(){ pushEntry(); render(); });
 if("serviceWorker" in navigator){
   navigator.serviceWorker.register("sw.js").catch(function(){});
 }
