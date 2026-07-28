@@ -244,6 +244,35 @@ function accessToken(){
     return null;
   });
 }
+
+/* Το lessonInfo το γράφει ΜΟΝΟ η ρουτίνα του Φαίδωνα.
+   Πριν ανεβάσουμε, το ξαναπαίρνουμε από το Dropbox ώστε να μην το σκεπάσουμε. */
+function mergeLessonInfo(at){
+  return fetch("https://content.dropboxapi.com/2/files/download",{
+    method:"POST",
+    headers:{
+      "Authorization":"Bearer "+at,
+      "Dropbox-API-Arg":JSON.stringify({path:FILE_PATH})
+    }
+  }).then(function(r){
+    if(!r.ok) return null;
+    return r.text();
+  }).then(function(txt){
+    if(!txt) return;
+    var remote = JSON.parse(txt);
+    if(!remote || !Array.isArray(remote.students)) return;
+    var map = {};
+    remote.students.forEach(function(rs){ map[rs.id] = rs.lessonInfo; });
+    var changed = false;
+    data.students.forEach(function(s){
+      if(Object.prototype.hasOwnProperty.call(map, s.id) && s.lessonInfo !== map[s.id]){
+        s.lessonInfo = map[s.id]; changed = true;
+      }
+    });
+    if(changed) localStorage.setItem(LS_DATA, JSON.stringify(data));
+  }).catch(function(){});
+}
+
 function syncNow(manual){
   if(syncState==="busy") return;
   syncState="busy"; syncMsg="Στέλνω στον Φαίδωνα..."; paintSyncOnly();
@@ -253,6 +282,11 @@ function syncNow(manual){
       syncMsg = manual ? "Χρειάζεται σύνδεση με το Dropbox" : "Χωρίς σύνδεση Dropbox";
       render(); return;
     }
+    return mergeLessonInfo(at).then(function(){ doUpload(at); });
+  });
+}
+
+function doUpload(at){
     fetch("https://content.dropboxapi.com/2/files/upload",{
       method:"POST",
       headers:{
@@ -271,7 +305,6 @@ function syncNow(manual){
     }).catch(function(){
       syncState="err"; syncMsg="Χωρίς δίκτυο, θα ξαναδοκιμάσει"; render();
     });
-  });
 }
 
 /* ---------------- Λήψη από το Dropbox ---------------- */
